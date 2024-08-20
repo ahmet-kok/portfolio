@@ -286,13 +286,13 @@ const SocialsBlock = () => (
 );
  */
 
-type DragEndParams = {
+/*  type DragEndParams = {
   event: MouseEvent | TouchEvent | PointerEvent;
   info: { point: { x: number; y: number } };
   index: number;
   type: ToolType;
 };
-
+ */
 const ToolsBlock = ({
   initialWebDevTools,
   initialNoCodeTools,
@@ -302,7 +302,7 @@ const ToolsBlock = ({
 }) => {
   const [webDevTools, setWebDevTools] = useState(initialWebDevTools);
   const [noCodeTools, setNoCodeTools] = useState(initialNoCodeTools);
-  const webDevContainer = useRef(null);
+ /* const webDevContainer = useRef(null);
   const noCodeContainer = useRef(null);
   let previousHighlightedElement = null;
 
@@ -381,7 +381,7 @@ const ToolsBlock = ({
 
     // Update the state with the new list order
     setListFunction(updatedList);
-  };
+  }; */
 
   return (
     <Block className="col-span-12 row-span-2 grid grid-cols-2">
@@ -394,22 +394,22 @@ const ToolsBlock = ({
         </h3>
         <ul
           className="flex flex-wrap gap-2 text-zinc-50 mb-3 mx-auto items-center"
-          ref={webDevContainer}
         >
           {webDevTools.map((tool, index) => (
-            <motion.div
+            <motion.a
               key={tool.name}
               id={`web-dev-${index}`} // Give each item a unique id
+              href={tool.url}
               drag
               /* dragElastic={0.2} */
 
-              dragConstraints={webDevContainer}
+              /* dragConstraints={webDevContainer}
               dragMomentum={false}
               dragElastic={0}
               dragSnapToOrigin={true}
               onDragEnd={(event, info) =>
                 onDragEnd({ event, info, index, type: "web-dev" })
-              }
+              } */
               whileHover={{
                 scale: 1.1,
               }}
@@ -418,12 +418,9 @@ const ToolsBlock = ({
             >
               <tool.icon className="text-2xl" />
               <span className="text-xl">{tool.name}</span>
-            </motion.div>
+            </motion.a>
           ))}
         </ul>
-        {webDevTools.map((tool, index) => (
-          <li>{`web-dev-${tool.name}`}</li>
-        ))}
       </div>
       {/* <div className="col-span-12 md:col-span-1">
         <h3 className="mb-3 text-3xl font-medium leading-tight text-zinc-400">
