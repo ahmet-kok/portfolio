@@ -1,12 +1,10 @@
 "use client";
 
-import React from "react";
 import { MotionProps, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-
 import { FiArrowRight, FiMapPin } from "react-icons/fi";
 import { useState } from "react";
-
+import { useRef } from "react";
 import {
   SiAirtable,
   SiAuth0,
@@ -25,123 +23,47 @@ import {
 } from "react-icons/si";
 import Link from "next/link";
 import { BiSolidFolder } from "react-icons/bi";
+import Image from "next/image";
 export const Bento = () => {
-  const [webDevTools, setWebDevTools] = useState(
-    ToolList.filter((tool) => tool.type.includes("web-dev"))
-  );
-  const [noCodeTools, setNoCodeTools] = useState(
-    ToolList.filter((tool) => tool.type.includes("no-code"))
-  );
   return (
     <div className="min-h-screen bg-zinc-900  text-zinc-50">
       <div className="flex items-center min-h-screen px-4 py-12">
         <motion.div
           initial="initial"
           animate="animate"
-          /*   transition={{
+          transition={{
             staggerChildren: 0.05,
-          }} */
+          }}
           className="mx-auto grid max-w-4xl grid-flow-dense grid-cols-12 gap-4"
         >
           <HeaderBlock />
           <SocialsBlock />
           <AboutBlock />
-          {<PortfolioBlock />}{" "}
           <ToolsBlock
-            initialWebDevTools={webDevTools}
-            initialNoCodeTools={noCodeTools}
+            initialWebDevTools={ToolList.filter((tool) =>
+              tool.type.includes("web-dev")
+            )}
+            initialNoCodeTools={ToolList.filter((tool) =>
+              tool.type.includes("no-code")
+            )}
           />
           <LocationBlock />
-          <BottomBlock />
+          <EmailListBlock />
+          <YouTubeBlock />
         </motion.div>
       </div>
     </div>
   );
 };
+type ToolType = "web-dev" | "no-code";
+
 interface Tool {
   name: string;
   url: string;
   color: string;
   icon: React.ElementType;
-  type: string[];
+  type: ToolType[];
 }
-const ToolList: Tool[] = [
-  {
-    name: "Airtable",
-    url: "https://airtable.com",
-    color: "red",
-    icon: SiAirtable,
-    type: ["no-code", "web-dev"],
-  },
-
-  {
-    name: "Make",
-    url: "https://make.com",
-    color: "purple",
-    icon: SiMake,
-    type: ["no-code"],
-  },
-  {
-    name: "Zapier",
-    url: "https://zapier.com",
-    color: "orange",
-    icon: SiZapier,
-    type: ["no-code"],
-  },
-  {
-    name: "Brevo",
-    url: "https://brevo.com",
-    color: "blue",
-    icon: SiBrevo,
-    type: ["no-code"],
-  },
-  {
-    name: "Tailwind CSS",
-    url: "https://tailwindcss.com",
-    color: "cyan",
-    icon: SiTailwindcss,
-    type: ["web-dev"],
-  },
-  {
-    name: "Next.js",
-    url: "https://nextjs.org",
-    color: "white",
-    icon: SiNextdotjs,
-    type: ["web-dev"],
-  },
-  {
-    name: "TypeScript",
-    url: "https://typescriptlang.org",
-    color: "blue",
-    icon: SiTypescript,
-    type: ["web-dev"],
-  },
-  {
-    name: "Auth0",
-    url: "https://auth0.com",
-    color: "green",
-    icon: SiAuth0,
-    type: ["web-dev"],
-  },
-  {
-    name: "Shadcn UI",
-    url: "https://ui.shadcn.com",
-    color: "blue",
-    icon: SiShadcnui,
-    type: ["web-dev"],
-  },
-  {
-    name: "ChatGPT",
-    url: "https://openai.com",
-    color: "green",
-    icon: SiOpenai,
-    type: ["no-code"],
-  },
-].map((tool) => ({
-  ...tool,
-  color: `text-${tool.color}-300`,
-  }));
-
 
 type BlockProps = {
   className?: string;
@@ -150,7 +72,7 @@ type BlockProps = {
 const Block = ({ className, ...rest }: BlockProps) => {
   return (
     <motion.div
-      /* variants={{
+      variants={{
         initial: {
           scale: 0.5,
           y: 50,
@@ -167,7 +89,7 @@ const Block = ({ className, ...rest }: BlockProps) => {
         mass: 3,
         stiffness: 400,
         damping: 50,
-      }} */
+      }}
       className={cn(
         "col-span-4 rounded-lg border border-zinc-700 bg-zinc-800 p-6",
         className
@@ -179,13 +101,15 @@ const Block = ({ className, ...rest }: BlockProps) => {
 
 const HeaderBlock = () => (
   <Block className="col-span-12 row-span-2 md:col-span-6">
-    <img
+    <Image
       src="https://api.dicebear.com/9.x/lorelei-neutral/svg?seed=LeoK"
       alt="avatar"
+      width={200}
+      height={200}
       className="mb-4 size-14 rounded-full"
     />
     <h1 className="mb-12 text-4xl font-medium leading-tight">
-      Hi, I'm Leo.{" "}
+      Hi, I&apos;m Leo.{" "}
       <span className="text-zinc-400">
         I build Airtable apps with team{" "}
         <Link
@@ -267,7 +191,7 @@ const SocialsBlock = () => (
   </>
 );
 
-const PortfolioBlock = () => (
+/* const PortfolioBlock = () => (
   <Block className="col-span-12 row-span-2">
     <p className="text-4xl font-medium leading-tight mb-4">
       Take a look at my works
@@ -360,6 +284,14 @@ const PortfolioBlock = () => (
     </Link>
   </Block>
 );
+ */
+
+type DragEndParams = {
+  event: MouseEvent | TouchEvent | PointerEvent;
+  info: { point: { x: number; y: number } };
+  index: number;
+  type: ToolType;
+};
 
 const ToolsBlock = ({
   initialWebDevTools,
@@ -370,42 +302,87 @@ const ToolsBlock = ({
 }) => {
   const [webDevTools, setWebDevTools] = useState(initialWebDevTools);
   const [noCodeTools, setNoCodeTools] = useState(initialNoCodeTools);
+  const webDevContainer = useRef(null);
+  const noCodeContainer = useRef(null);
+  let previousHighlightedElement = null;
 
-  const onDragStart = <T extends HTMLElement>(
-    e: React.DragEvent<T>,
-    index: number,
-    type: "webDevTools" | "noCodeTools"
-  ) => {
-    e.dataTransfer.setData("draggedIndex", index.toString());
-    e.dataTransfer.setData("type", type);
-  };
-
-  const onDrop = <T extends HTMLElement>(
-    e: React.DragEvent<T>,
-    dropIndex: number,
-    type: "webDevTools" | "noCodeTools"
-  ) => {
-    const draggedIndex = parseInt(e.dataTransfer.getData("draggedIndex"), 10);
-    const draggedType = e.dataTransfer.getData("type");
-
-    if (type !== draggedType) return;
-
-    if (type === "webDevTools") {
-      const updatedTools = [...webDevTools];
-      const [draggedItem] = updatedTools.splice(draggedIndex, 1);
-      updatedTools.splice(dropIndex, 0, draggedItem);
-      setWebDevTools(updatedTools);
-    } else if (type === "noCodeTools") {
-      const updatedTools = [...noCodeTools];
-      const [draggedItem] = updatedTools.splice(draggedIndex, 1);
-      updatedTools.splice(dropIndex, 0, draggedItem);
-      setNoCodeTools(updatedTools);
+  const onDragOver = (e, idx, type) => {
+    e.preventDefault(); // Allow dropping
+  
+    const element = document.getElementById(`${type}-${idx}`);
+    if (element && previousHighlightedElement !== element) {
+      // Remove highlight from the previous element
+      if (previousHighlightedElement) {
+        previousHighlightedElement.classList.remove("bg-zinc-600", "scale-105", "z-10");
+      }
+      
+      // Highlight the current element
+      element.classList.add("bg-zinc-600", "scale-105", "z-10");
+      previousHighlightedElement = element;
     }
   };
-  const onDragOver = (e: React.DragEvent<HTMLElement>) => {
-    e.preventDefault();
-    // Your drag over logic
+  
+  const onDragLeave = () => {
+    // Remove the highlight when the drag leaves the element
+    if (previousHighlightedElement) {
+      previousHighlightedElement.classList.remove("bg-zinc-600", "scale-105", "z-10");
+      previousHighlightedElement = null;
+    }
   };
+  
+  const onDrop = (e, idx, type) => {
+    e.preventDefault();
+    // Remove highlight on drop
+    if (previousHighlightedElement) {
+      previousHighlightedElement.classList.remove("bg-zinc-600", "scale-105", "z-10");
+      previousHighlightedElement = null;
+    }
+    // Your drop logic here
+  };
+  const onDragEnd = ({ event, info, index, type }: DragEndParams) => {
+    let updatedList: Tool[];
+    let setListFunction: React.Dispatch<React.SetStateAction<Tool[]>>;
+
+    if (type === "web-dev") {
+      updatedList = [...webDevTools];
+      setListFunction = setWebDevTools;
+    } else {
+      updatedList = [...noCodeTools];
+      setListFunction = setNoCodeTools;
+    }
+
+    // Remove the dragged item from its original position
+    const [draggedItem] = updatedList.splice(index, 1);
+
+    // Find the closest item to where the item was dropped and get its index
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+
+    updatedList.forEach((item, idx) => {
+      const element = document.getElementById(`${type}-${idx}`);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+    
+        // Calculate the center of the current element
+        const elementCenterX = rect.left + rect.width / 2;
+        const elementCenterY = rect.top + rect.height / 2;
+    
+        // Calculate the Manhattan distance from the drag point to the center of the element
+        const distance = Math.abs(info.point.x - elementCenterX) + Math.abs(info.point.y - elementCenterY);
+    
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = idx;
+        }
+      }
+    });
+    // Insert the dragged item at the closest position
+    updatedList.splice(closestIndex, 0, draggedItem);
+
+    // Update the state with the new list order
+    setListFunction(updatedList);
+  };
+
   return (
     <Block className="col-span-12 row-span-2 grid grid-cols-2">
       <h2 className="text-4xl font-medium leading-tight mb-4 col-span-12">
@@ -415,26 +392,40 @@ const ToolsBlock = ({
         <h3 className="mb-3 text-3xl font-medium leading-tight text-zinc-400">
           As a web developer
         </h3>
-        <ul className="flex flex-wrap gap-2 text-zinc-50 mb-3 mx-auto grid-flow-dense items-center">
+        <ul
+          className="flex flex-wrap gap-2 text-zinc-50 mb-3 mx-auto items-center"
+          ref={webDevContainer}
+        >
           {webDevTools.map((tool, index) => (
-            <Link
-              href={tool.url}
-              target="_blank"
-              prefetch={false}
+            <motion.div
               key={tool.name}
-              draggable
-              onDragStart={(e) => onDragStart(e, index, "webDevTools")}
-              onDrop={(e) => onDrop(e, index, "webDevTools")}
-              onDragOver={onDragOver}
-              className="flex gap-1 items-center bg-zinc-700 p-2 rounded-full px-3"
+              id={`web-dev-${index}`} // Give each item a unique id
+              drag
+              /* dragElastic={0.2} */
+
+              dragConstraints={webDevContainer}
+              dragMomentum={false}
+              dragElastic={0}
+              dragSnapToOrigin={true}
+              onDragEnd={(event, info) =>
+                onDragEnd({ event, info, index, type: "web-dev" })
+              }
+              whileHover={{
+                scale: 1.1,
+              }}
+              whileTap={{ scale: 0.9 }}
+              className="flex gap-1 items-center bg-zinc-700 p-2 rounded-full px-3 cursor-pointer"
             >
               <tool.icon className="text-2xl" />
               <span className="text-xl">{tool.name}</span>
-            </Link>
+            </motion.div>
           ))}
         </ul>
+        {webDevTools.map((tool, index) => (
+          <li>{`web-dev-${tool.name}`}</li>
+        ))}
       </div>
-      <div className="col-span-12 md:col-span-1">
+      {/* <div className="col-span-12 md:col-span-1">
         <h3 className="mb-3 text-3xl font-medium leading-tight text-zinc-400">
           As a no code expert
         </h3>
@@ -459,7 +450,7 @@ const ToolsBlock = ({
             </Link>
           ))}
         </ul>
-      </div>
+      </div> */}
     </Block>
   );
 };
@@ -480,13 +471,13 @@ const AboutBlock = () => (
 );
 
 const LocationBlock = () => (
-  <Block className="col-span-12 flex flex-col items-center gap-4 md:col-span-2">
+  <Block className="col-span-12 flex flex-col items-center gap-4 md:col-span-3">
     <FiMapPin className="text-3xl" />
     <p className="text-center text-lg text-zinc-400">Turkiye</p>
   </Block>
 );
 
-const BottomBlock = () => (
+/* const BottomBlock = () => (
   <>
     <Block className="col-span-12 md:col-span-5">
       <Link
@@ -508,7 +499,33 @@ const BottomBlock = () => (
     </Block>
   </>
 );
+ */
 
+const EmailListBlock = () => (
+  <>
+    {" "}
+    <Block className="col-span-12 md:col-span-4 grid place-content-between">
+      <p className="mb-3 text-lg">Join my mailing list</p>
+      <Link
+        href="https://medium.com/subscribe/@ahmetkok"
+        className="flex items-center w-fit gap-2 whitespace-nowrap rounded bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-300"
+      >
+        <SiMedium /> Join the list
+      </Link>
+    </Block>
+    <Block className="col-span-12 md:col-span-5 grid place-content-between">
+      <p className="mb-3 text-lg">Watch my latest videos</p>
+      <Link
+        href="https://youtube.com/@ahmetkok?sub_confirmation=1"
+        className="flex items-center w-fit gap-2 whitespace-nowrap rounded bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-300"
+      >
+        <SiYoutube />
+        Watch on YouTube
+      </Link>
+    </Block>
+  </>
+);
+const YouTubeBlock = () => <></>;
 /* const Logo = () => {
   return (
     <Link
@@ -539,3 +556,80 @@ const Footer = () => {
     </footer>
   );
 };
+
+const ToolList: Tool[] = [
+  {
+    name: "Airtable",
+    url: "https://airtable.com",
+    color: "red",
+    icon: SiAirtable,
+    type: ["no-code", "web-dev"],
+  },
+
+  {
+    name: "Make",
+    url: "https://make.com",
+    color: "purple",
+    icon: SiMake,
+    type: ["no-code"],
+  },
+  {
+    name: "Zapier",
+    url: "https://zapier.com",
+    color: "orange",
+    icon: SiZapier,
+    type: ["no-code"],
+  },
+  {
+    name: "Brevo",
+    url: "https://brevo.com",
+    color: "blue",
+    icon: SiBrevo,
+    type: ["no-code"],
+  },
+  {
+    name: "Tailwind CSS",
+    url: "https://tailwindcss.com",
+    color: "cyan",
+    icon: SiTailwindcss,
+    type: ["web-dev"],
+  },
+  {
+    name: "Next.js",
+    url: "https://nextjs.org",
+    color: "white",
+    icon: SiNextdotjs,
+    type: ["web-dev"],
+  },
+  {
+    name: "TypeScript",
+    url: "https://typescriptlang.org",
+    color: "blue",
+    icon: SiTypescript,
+    type: ["web-dev"],
+  },
+  {
+    name: "Auth0",
+    url: "https://auth0.com",
+    color: "green",
+    icon: SiAuth0,
+    type: ["web-dev"],
+  },
+  {
+    name: "Shadcn UI",
+    url: "https://ui.shadcn.com",
+    color: "blue",
+    icon: SiShadcnui,
+    type: ["web-dev"],
+  },
+  {
+    name: "ChatGPT",
+    url: "https://openai.com",
+    color: "green",
+    icon: SiOpenai,
+    type: ["no-code"],
+  },
+].map((tool) => ({
+  ...tool,
+  color: `text-${tool.color}-300`,
+}));
