@@ -62,7 +62,7 @@ interface Tool {
   url: string;
   color: string;
   icon: React.ElementType;
-  type: ToolType[];
+  type: string[];
 }
 
 type BlockProps = {
@@ -302,7 +302,7 @@ const ToolsBlock = ({
 }) => {
   const [webDevTools, setWebDevTools] = useState(initialWebDevTools);
   const [noCodeTools, setNoCodeTools] = useState(initialNoCodeTools);
- /* const webDevContainer = useRef(null);
+  /* const webDevContainer = useRef(null);
   const noCodeContainer = useRef(null);
   let previousHighlightedElement = null;
 
@@ -392,29 +392,42 @@ const ToolsBlock = ({
         <h3 className="mb-3 text-3xl font-medium leading-tight text-zinc-400">
           As a web developer
         </h3>
-        <ul
-          className="flex flex-wrap gap-2 text-zinc-50 mb-3 mx-auto items-center"
-        >
+        <ul className="flex flex-wrap gap-2 text-zinc-50 mb-3 mx-auto items-center">
           {webDevTools.map((tool, index) => (
             <motion.a
               key={tool.name}
               id={`web-dev-${index}`} // Give each item a unique id
               href={tool.url}
-              drag
-              /* dragElastic={0.2} */
-
-              /* dragConstraints={webDevContainer}
-              dragMomentum={false}
-              dragElastic={0}
-              dragSnapToOrigin={true}
-              onDragEnd={(event, info) =>
-                onDragEnd({ event, info, index, type: "web-dev" })
-              } */
               whileHover={{
                 scale: 1.1,
               }}
               whileTap={{ scale: 0.9 }}
               className="flex gap-1 items-center bg-zinc-700 p-2 rounded-full px-3 cursor-pointer"
+            >
+              <tool.icon className="text-2xl" />
+              <span className="text-xl">{tool.name}</span>
+            </motion.a>
+          ))}
+        </ul>
+      </div>
+      <div className="col-span-12 md:col-span-1 pr-1">
+        <h3 className="mb-3 text-3xl font-medium leading-tight text-zinc-400">
+          As a no code expert
+        </h3>
+        <ul className="flex flex-wrap gap-2 text-zinc-50 mb-3 mx-auto items-center">
+          {noCodeTools.map((tool, index) => (
+            <motion.a
+              key={tool.name}
+              id={`web-dev-${index}`} // Give each item a unique id
+              href={tool.url}
+              whileHover={{
+                scale: 1.1,
+              }}
+              whileTap={{ scale: 0.9 }}
+              className={cn(
+                `${tool.color}`,
+                "flex gap-1 items-center bg-zinc-700 p-2 rounded-full px-3 cursor-pointer"
+              )}
             >
               <tool.icon className="text-2xl" />
               <span className="text-xl">{tool.name}</span>
